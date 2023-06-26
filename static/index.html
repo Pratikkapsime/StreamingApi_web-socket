@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Streamming response in clunks using WebSocket</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .input-box {
+            margin-bottom: 20px;
+        }
+
+        .response-box {
+            width: 300px;
+            height: 200px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow: auto;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="input-box">
+            <label for="query">Enter your query:</label>
+            <input type="text" id="query" />
+        </div>
+        <button onclick ="submitQuery()">Ask</button>
+        <div class="response-box" id="response">
+            <h3>
+                Result:
+            </h3>
+        </div>
+    </div>
+    
+    
+    <script>
+        const socket = io('http://localhost:3000');
+
+        function submitQuery() {
+            const queryInput = document.getElementById('query');
+            if (socket.connected) {
+                socket.emit('msgToServer', queryInput.value);
+                queryInput.value = '';
+            } else {
+                console.error('WebSocket connection is not open.');
+            }
+        }
+
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket server.');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from WebSocket server.');
+        });
+
+        socket.on('msgToClient', (data) => {
+            console.log(`Server response: ${data}`);
+            const responseDiv = document.getElementById('response');
+            responseDiv.textContent = data;
+        });
+    </script>
+
+</body>
+
+</html>
