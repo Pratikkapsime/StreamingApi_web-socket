@@ -34,22 +34,20 @@
             <input type="text" id="query" />
         </div>
         <button onclick ="submitQuery()">Ask</button>
-        <div class="response-box" id="response">
-            <h3>
-                Result:
-            </h3>
-        </div>
+        <div class="response-box" id="response"></div>
     </div>
     
     
     <script>
         const socket = io('http://localhost:3000');
+        const responseDiv = document.getElementById('response');
 
         function submitQuery() {
             const queryInput = document.getElementById('query');
             if (socket.connected) {
                 socket.emit('msgToServer', queryInput.value);
                 queryInput.value = '';
+                responseDiv.textContent = '';
             } else {
                 console.error('WebSocket connection is not open.');
             }
@@ -65,8 +63,10 @@
 
         socket.on('msgToClient', (data) => {
             console.log(`Server response: ${data}`);
-            const responseDiv = document.getElementById('response');
-            responseDiv.textContent = data;
+            responseDiv.textContent += data;
+        });
+        socket.on('responseEnd', () => {
+            console.log(`Server response completed`);
         });
     </script>
 

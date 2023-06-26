@@ -30,33 +30,26 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
   @SubscribeMessage('msgToServer')
   handleRequest(client: Socket, text: string){
-    // client.emit('msgToClient', text);
-    const response = 'This is the response, I am returning in chunk'.repeat(100);
-    this.wss.emit('msgToClient',response);
-  }
-}
-
-
-
-/*
-
-
-    const chunkSize = 1000; 
+    const response = 'This is the response, I am returning in chunk.'.repeat(50);
+    const chunkSize = 15; 
     const totalChunks = Math.ceil(response.length / chunkSize);
+    let currentChunkIndex = 0;
 
-    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-      const start = chunkIndex * chunkSize;
+    const intervalId = setInterval(() => {
+      if (currentChunkIndex >= totalChunks) {
+        clearInterval(intervalId);
+        this.wss.emit('responseEnd');
+        return;
+      }
+
+      const start = currentChunkIndex * chunkSize;
       const end = start + chunkSize;
       const chunk = response.slice(start, end);
 
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          client.emit('responseChunk', chunk);
-          resolve();
-        }, 500); 
-      });
-    }
-    // Send a signal to indicate the end of response
-    client.emit('responseEnd');
+      this.wss.emit('msgToClient',chunk );
 
-*/
+      currentChunkIndex++;
+    }, 500);
+    // this.wss.emit('msgToClient',response);
+  }
+}
