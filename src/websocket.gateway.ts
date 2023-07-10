@@ -10,6 +10,8 @@ import {
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
+
+
 @WebSocketGateway()
 export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() wss: Server;
@@ -35,9 +37,11 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     const totalChunks = Math.ceil(response.length / chunkSize);
     let currentChunkIndex = 0;
 
-    const intervalId = setInterval(() => {
+    //logic for sending chunks response
+    //executed repeatedly at the specified interval 500 milliseconds
+    const intervalId = setInterval(() => { 
       if (currentChunkIndex >= totalChunks) {
-        clearInterval(intervalId);
+        clearInterval(intervalId);      //the execution of the recurring function is stopped 
         this.wss.emit('responseEnd');
         return;
       }
